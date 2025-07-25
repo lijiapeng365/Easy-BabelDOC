@@ -60,7 +60,7 @@ const Result = () => {
     setDownloading(type)
     
     try {
-      const response = await fetch(`http://localhost:8000/api/translation/${taskId}/download?type=${type}`)
+      const response = await fetch(`http://localhost:8000/api/translation/${taskId}/download/${type}`)
       
       if (response.ok) {
         const blob = await response.blob()
