@@ -1,0 +1,35 @@
+[
+  {
+    "task_id": "f765d3b8-f8c7-47f9-9899-a6fbf99cffe0",
+    "status": "completed",
+    "filename": "9ab89694-c9a8-4599-92ee-c1e40cfc89d9.pdf",
+    "source_lang": "auto",
+    "target_lang": "zh",
+    "model": "deepseek-v3-250324",
+    "start_time": "2025-07-25T11:11:51.075867",
+    "progress": 100,
+    "stage": "完成",
+    "config": {
+      "file_id": "9ab89694-c9a8-4599-92ee-c1e40cfc89d9",
+      "lang_in": "auto",
+      "lang_out": "zh",
+      "model": "deepseek-v3-250324",
+      "api_key": "ac04bb12-aaec-40cc-828b-cc768f95450c",
+      "base_url": "https://ark.cn-beijing.volces.com/api/v3",
+      "pages": "1",
+      "qps": 1,
+      "no_dual": false,
+      "no_mono": false,
+      "debug": false,
+      "glossary_ids": []
+    },
+    "message": "",
+    "result": {
+      "mono_pdf_path": "outputs\\f765d3b8-f8c7-47f9-9899-a6fbf99cffe0\\9ab89694-c9a8-4599-92ee-c1e40cfc89d9.zh.mono.pdf",
+      "dual_pdf_path": "outputs\\f765d3b8-f8c7-47f9-9899-a6fbf99cffe0\\9ab89694-c9a8-4599-92ee-c1e40cfc89d9.zh.dual.pdf",
+      "total_seconds": 16.846662521362305,
+      "peak_memory_usage": 2044.6015625
+    },
+    "end_time": "2025-07-25T11:12:08.355880"
+  }
+]

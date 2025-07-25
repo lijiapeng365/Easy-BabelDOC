@@ -20,6 +20,12 @@ interface HistoryItem {
     total_seconds: number
     peak_memory_usage: number
   }
+  file_status?: {
+    mono_exists: boolean
+    dual_exists: boolean
+    mono_size: number
+    dual_size: number
+  }
 }
 
 const History = () => {
@@ -37,55 +43,17 @@ const History = () => {
 
   const loadHistory = async () => {
     setLoading(true)
-    
     try {
-      // 模拟历史记录数据（实际应该从后端API获取）
-      const mockHistory: HistoryItem[] = [
-        {
-          task_id: 'task_001',
-          filename: 'document1.pdf',
-          status: 'completed',
-          source_lang: 'en',
-          target_lang: 'zh',
-          model: 'gpt-4o',
-          start_time: '2024-01-15T10:30:00Z',
-          end_time: '2024-01-15T10:45:00Z',
-          progress: 100,
-          result: {
-            mono_pdf_path: '/results/task_001_mono.pdf',
-            dual_pdf_path: '/results/task_001_dual.pdf',
-            total_seconds: 900,
-            peak_memory_usage: 512
-          }
-        },
-        {
-          task_id: 'task_002',
-          filename: 'research_paper.pdf',
-          status: 'running',
-          source_lang: 'auto',
-          target_lang: 'zh',
-          model: 'gpt-4o-mini',
-          start_time: '2024-01-15T11:00:00Z',
-          progress: 65
-        },
-        {
-          task_id: 'task_003',
-          filename: 'manual.pdf',
-          status: 'error',
-          source_lang: 'ja',
-          target_lang: 'en',
-          model: 'gpt-4-turbo',
-          start_time: '2024-01-14T15:20:00Z',
-          end_time: '2024-01-14T15:25:00Z',
-          progress: 25,
-          error: 'API配额不足'
-        }
-      ]
-      
-      setHistory(mockHistory)
+      const response = await fetch('http://localhost:8000/api/translations')
+      if (response.ok) {
+        const data = await response.json()
+        setHistory(data)
+      } else {
+        toast.error('加载历史记录失败')
+      }
     } catch (error) {
       console.error('Failed to load history:', error)
-      toast.error('加载历史记录失败')
+      toast.error('网络错误，无法加载历史记录')
     } finally {
       setLoading(false)
     }
@@ -156,6 +124,14 @@ const History = () => {
     return `${minutes}:${secs.toString().padStart(2, '0')}`
   }
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
   const filteredHistory = history.filter(item => {
     if (filter === 'all') return true
     return item.status === filter
@@ -201,12 +177,26 @@ const History = () => {
     if (!window.confirm(`确定要删除选中的 ${selectedItems.length} 条记录吗？`)) return
     
     try {
-      // 这里应该调用删除API
-      toast.success(`已删除 ${selectedItems.length} 条记录`)
-      setHistory(prev => prev.filter(item => !selectedItems.includes(item.task_id)))
-      setSelectedItems([])
+      const response = await fetch('http://localhost:8000/api/translations', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(selectedItems)
+      })
+      
+      if (response.ok) {
+        toast.success(`已删除 ${selectedItems.length} 条记录`)
+        setSelectedItems([])
+        // 重新加载历史记录
+        loadHistory()
+      } else {
+        const error = await response.json()
+        toast.error(error.detail || '删除失败')
+      }
     } catch (error) {
-      toast.error('删除失败')
+      console.error('Delete failed:', error)
+      toast.error('网络错误，删除失败')
     }
   }
 
@@ -222,7 +212,7 @@ const History = () => {
 
   const downloadResult = async (taskId: string, type: 'mono' | 'dual') => {
     try {
-      const response = await fetch(`http://localhost:8000/api/translation/${taskId}/download?type=${type}`)
+      const response = await fetch(`http://localhost:8000/api/translation/${taskId}/download/${type}`)
       
       if (response.ok) {
         const blob = await response.blob()
@@ -230,19 +220,20 @@ const History = () => {
         const a = document.createElement('a')
         a.style.display = 'none'
         a.href = url
-        a.download = type === 'mono' ? 'translated.pdf' : 'dual_language.pdf'
+        a.download = `${taskId}_${type}.pdf`
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
         
-        toast.success('文件下载成功')
+        toast.success(`${type === 'mono' ? '单语' : '双语'}PDF下载成功`)
       } else {
-        toast.error('文件下载失败')
+        const error = await response.json().catch(() => ({ detail: '下载失败' }))
+        toast.error(error.detail || '下载失败')
       }
     } catch (error) {
       console.error('Download failed:', error)
-      toast.error('下载过程中发生错误')
+      toast.error('网络错误，下载失败')
     }
   }
 
@@ -390,10 +381,36 @@ const History = () => {
                         </div>
                         
                         {item.result && (
-                          <div className="text-sm text-gray-500">
-                            {formatDuration(item.result.total_seconds)}
-                          </div>
-                        )}
+                      <div className="text-sm text-gray-500">
+                        {formatDuration(item.result.total_seconds)}
+                      </div>
+                    )}
+                    
+                    {/* 文件状态显示 */}
+                    {item.file_status && item.status === 'completed' && (
+                      <div className="flex items-center space-x-2 text-xs">
+                        <div className={`flex items-center space-x-1 px-2 py-1 rounded ${
+                          item.file_status.mono_exists ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          <span>单语:</span>
+                          {item.file_status.mono_exists ? (
+                            <span>✓ {formatFileSize(item.file_status.mono_size)}</span>
+                          ) : (
+                            <span>✗ 缺失</span>
+                          )}
+                        </div>
+                        <div className={`flex items-center space-x-1 px-2 py-1 rounded ${
+                          item.file_status.dual_exists ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          <span>双语:</span>
+                          {item.file_status.dual_exists ? (
+                            <span>✓ {formatFileSize(item.file_status.dual_size)}</span>
+                          ) : (
+                            <span>✗ 缺失</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                       </div>
                     </div>
                     
@@ -426,21 +443,34 @@ const History = () => {
                     
                     {item.status === 'completed' && item.result && (
                       <>
-                        <button
-                          onClick={() => downloadResult(item.task_id, 'mono')}
-                          className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                          title="下载单语PDF"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
+                        {/* 单语PDF下载按钮 */}
+                        {item.file_status?.mono_exists && (
+                          <button
+                            onClick={() => downloadResult(item.task_id, 'mono')}
+                            className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                            title={`下载单语PDF (${formatFileSize(item.file_status.mono_size)})`}
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                        )}
                         
-                        <button
-                          onClick={() => downloadResult(item.task_id, 'dual')}
-                          className="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 transition-colors"
-                          title="下载双语PDF"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
+                        {/* 双语PDF下载按钮 */}
+                        {item.file_status?.dual_exists && (
+                          <button
+                            onClick={() => downloadResult(item.task_id, 'dual')}
+                            className="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                            title={`下载双语PDF (${formatFileSize(item.file_status.dual_size)})`}
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                        )}
+                        
+                        {/* 文件缺失提示 */}
+                        {(!item.file_status?.mono_exists || !item.file_status?.dual_exists) && (
+                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                            部分文件缺失
+                          </div>
+                        )}
                       </>
                     )}
                   </div>

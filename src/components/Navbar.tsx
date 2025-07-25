@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { FileText, Settings, History, Home } from 'lucide-react'
+import { FileText, Settings, History, Home, FolderOpen } from 'lucide-react'
 
 const Navbar = () => {
   const location = useLocation()
@@ -8,6 +8,7 @@ const Navbar = () => {
     { path: '/', label: '首页', icon: Home },
     { path: '/settings', label: '配置', icon: Settings },
     { path: '/history', label: '历史', icon: History },
+    { path: '/file-manager', label: '文件管理', icon: FolderOpen },
   ]
 
   return (
