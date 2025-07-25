@@ -1,4 +1,4 @@
-# Easy-BabelDoc
+# Easy-BabelDOC
 
 基于BabelDOC API的Web翻译应用，提供PDF文档翻译功能。
 
