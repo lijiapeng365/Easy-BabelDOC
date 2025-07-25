@@ -79,7 +79,7 @@ const Settings = () => {
 
   const loadGlossaries = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/glossary')
+      const response = await fetch('http://localhost:8000/api/glossaries')
       if (response.ok) {
         const data = await response.json()
         setGlossaries(data)
@@ -211,12 +211,17 @@ const Settings = () => {
       
       try {
         const testBaseUrl = (baseUrl.trim() || 'https://api.openai.com/v1').replace(/\/$/, '')
-        const response = await fetch(`${testBaseUrl}/models/${modelName}`, {
-          method: 'GET',
+        const response = await fetch(`${testBaseUrl}/chat/completions`, {
+          method: 'POST',
           headers: {
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify({
+            model: modelName,
+            messages: [{ role: 'user', content: 'test' }],
+            max_tokens: 1
+          })
         })
 
         if (response.ok) {
