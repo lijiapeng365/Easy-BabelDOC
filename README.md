@@ -178,7 +178,7 @@ python backend/main.py
 
 ## 许可证
 
-本项目基于MIT许可证开源。
+本项目基于 GNU Affero General Public License (AGPL) v3 许可证开源。
 
 ## 贡献
 
