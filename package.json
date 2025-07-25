@@ -1,8 +1,20 @@
 {
-  "name": "trae-project",
-  "private": true,
-  "version": "0.0.0",
+  "name": "easy-babeldoc",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
+  "license": "AGPL-3.0",
+  "author": "lijiapeng365",
+  "description": "基于BabelDOC API的Web翻译应用，提供PDF文档翻译功能",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lijiapeng365/Easy-BabelDOC"
+  },
+  "homepage": "https://github.com/lijiapeng365/Easy-BabelDOC",
+  "bugs": {
+    "url": "https://github.com/lijiapeng365/Easy-BabelDOC/issues"
+  },
+  "keywords": ["pdf", "translation", "babeldoc", "ai", "document", "react", "fastapi"],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

@@ -180,6 +180,33 @@ python backend/main.py
 
 本项目基于 GNU Affero General Public License (AGPL) v3 许可证开源。
 
+### 重要说明
+
+- 本项目基于 [BabelDOC](https://github.com/funstory-ai/BabelDOC) 开发，BabelDOC 使用 AGPL-3.0 许可证
+- 根据 AGPL-3.0 要求，如果您修改本软件并通过网络提供服务，必须向用户提供修改后的源代码
+- 完整的许可证文本请参见 [LICENSE](./LICENSE) 文件
+- 版权声明和第三方依赖信息请参见 [NOTICE](./NOTICE) 文件
+
+### 源代码获取
+
+本项目的完整源代码可在以下地址获取：
+- GitHub: https://github.com/lijiapeng365/Easy-BabelDOC
+
+### AGPL-3.0 关键要求
+
+1. **网络使用条款**：如果您修改软件并通过网络提供服务，必须向用户提供源代码
+2. **版权保留**：保留所有版权声明和许可证通知
+3. **源码分发**：分发时必须包含源代码或提供获取源代码的方式
+4. **修改标记**：如有修改，需要明确标记修改内容
+
+如果您计划商业使用或提供在线服务，请确保遵守AGPL-3.0的所有条款。
+
 ## 贡献
 
 欢迎提交Issue和Pull Request来改进项目！
+
+在贡献代码前，请确保：
+1. 您的代码符合项目的编码规范
+2. 添加适当的测试用例
+3. 更新相关文档
+4. 您同意将贡献的代码以AGPL-3.0许可证发布

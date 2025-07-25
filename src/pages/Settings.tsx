@@ -579,6 +579,37 @@ const Settings = () => {
           </div>
         </div>
       )}
+
+      {/* 许可证信息 */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6 mt-8">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">许可证信息</h2>
+        <div className="space-y-4 text-sm text-gray-600">
+          <div>
+            <h3 className="font-medium text-gray-900 mb-2">Easy-BabelDOC</h3>
+            <p>版本: 1.0.0</p>
+            <p>作者: lijiapeng365</p>
+            <p>许可证: GNU Affero General Public License (AGPL) v3</p>
+          </div>
+          
+          <div className="border-t pt-4">
+            <h4 className="font-medium text-gray-900 mb-2">重要声明</h4>
+            <p className="mb-2">
+              本软件基于 <a href="https://github.com/funstory-ai/BabelDOC" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">BabelDOC</a> 开发，使用 AGPL-3.0 许可证。
+            </p>
+            <p className="mb-2">
+              根据 AGPL-3.0 要求，如果您修改本软件并通过网络提供服务，必须向用户提供修改后的源代码。
+            </p>
+            <p>
+              完整源代码可在 <a href="https://github.com/lijiapeng365/Easy-BabelDOC" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">GitHub</a> 获取。
+            </p>
+          </div>
+          
+          <div className="border-t pt-4">
+            <h4 className="font-medium text-gray-900 mb-2">第三方组件</h4>
+            <p>本软件使用了多个开源组件，详细信息请查看项目的 package.json 和 requirements.txt 文件。</p>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
