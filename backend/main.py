@@ -215,9 +215,7 @@ try:
 except:
     print("BabelDOC initialization skipped (development mode)")
 
-@app.get("/")
-async def root():
-    return {"message": "BabelDOC API Server", "version": "1.0.0"}
+# 原来的根路由已被前端路由替代
 
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...)):
@@ -740,6 +738,59 @@ async def get_file_stats():
                         stats["total_files"] += 1
     
     return stats
+
+# 配置静态文件服务（用于桌面应用）
+import sys
+from pathlib import Path
+
+# 检测运行环境并设置静态文件目录
+if getattr(sys, 'frozen', False):
+    # 在PyInstaller打包的exe中运行
+    static_dir = Path(sys._MEIPASS) / "dist"
+else:
+    # 开发环境 - 从backend目录向上找到项目根目录
+    static_dir = Path(__file__).parent.parent / "dist"
+
+print(f"Static directory path: {static_dir}")
+print(f"Static directory exists: {static_dir.exists()}")
+if static_dir.exists():
+    print(f"Contents: {list(static_dir.iterdir())}")
+
+# 如果前端构建文件存在，则配置静态文件服务
+if static_dir.exists() and (static_dir / "index.html").exists():
+    print("Configuring static file serving...")
+    
+    # 挂载静态资源目录
+    if (static_dir / "assets").exists():
+        app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
+        print("Mounted /assets")
+    
+    @app.get("/", response_class=FileResponse)
+    async def serve_frontend():
+        """服务前端页面"""
+        print("Serving frontend index.html")
+        return FileResponse(str(static_dir / "index.html"))
+    
+    @app.get("/{path:path}")
+    async def catch_all(path: str):
+        """处理前端路由"""
+        print(f"Handling path: {path}")
+        
+        # 如果是API路由，跳过
+        if path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="API endpoint not found")
+        
+        # 检查是否是静态文件
+        file_path = static_dir / path
+        if file_path.exists() and file_path.is_file():
+            print(f"Serving static file: {file_path}")
+            return FileResponse(str(file_path))
+        
+        # 其他路由返回index.html（SPA路由）
+        print("Serving SPA route with index.html")
+        return FileResponse(str(static_dir / "index.html"))
+else:
+    print("Frontend files not found - static file serving disabled")
 
 if __name__ == "__main__":
     import uvicorn
